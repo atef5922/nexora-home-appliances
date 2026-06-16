@@ -8,6 +8,7 @@ export function FloatingActions() {
   const [showTop, setShowTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const [showPopupPulse, setShowPopupPulse] = useState(false);
   const whatsappUrl = useMemo(() => {
     const message = encodeURIComponent("Hello Nexora Home, I need help choosing an appliance.");
     return `https://wa.me/8801700000000?text=${message}`;
@@ -42,6 +43,15 @@ export function FloatingActions() {
     };
   }, []);
 
+  useEffect(() => {
+    const start = window.setTimeout(() => setShowPopupPulse(true), 1100);
+    const stop = window.setTimeout(() => setShowPopupPulse(false), 2400);
+    return () => {
+      window.clearTimeout(start);
+      window.clearTimeout(stop);
+    };
+  }, []);
+
   const ringStyle = {
     background: `conic-gradient(#f6d58b ${scrollProgress}%, rgba(255,255,255,0.25) ${scrollProgress}%)`
   };
@@ -49,25 +59,75 @@ export function FloatingActions() {
   return (
     <div className="fixed bottom-24 right-4 z-[60] flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
       <div className="flex items-center gap-3">
-        <a
+        <motion.a
           href={whatsappUrl}
           target="_blank"
           rel="noreferrer"
           title="Chat with us"
           aria-label="Chat on WhatsApp"
-          className="group relative grid h-14 w-14 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[#28c76f] to-[#1ca14a] text-white shadow-[0_16px_35px_rgba(28,161,74,0.35)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_50px_rgba(28,161,74,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]"
+          initial={{ scale: 0.97, y: 6, opacity: 0 }}
+          animate={{
+            y: [0, -4, 0],
+            scale: [1, 1.03, 1],
+            opacity: 1
+          }}
+          whileHover={{
+            scale: 1.06,
+            y: -6,
+            boxShadow: "0_26px_58px_rgba(28,161,74,0.45)"
+          }}
+          whileTap={{ scale: 0.92 }}
+          transition={{
+            y: { repeat: Number.POSITIVE_INFINITY, repeatType: "mirror", duration: 3.2, ease: "easeInOut" },
+            scale: { repeat: Number.POSITIVE_INFINITY, repeatType: "mirror", duration: 3.2, ease: "easeInOut" },
+            opacity: { duration: 0.4, ease: "easeOut" }
+          }}
+          className="group relative grid h-14 w-14 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[#28c76f] to-[#1ca14a] text-white shadow-[0_16px_35px_rgba(28,161,74,0.35)] transition duration-300 hover:shadow-[0_22px_50px_rgba(28,161,74,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]"
         >
           <span className="pointer-events-none absolute inset-0 rounded-full bg-[#25D366]/24" />
           <span className="pointer-events-none absolute inset-0 animate-pulse rounded-full bg-[#25D366]/35" />
           <span className="pointer-events-none absolute -inset-2 rounded-full border border-[#7ef0a5]/40 animate-ping" />
           <span className="pointer-events-none absolute inset-0 rounded-full bg-white/15 opacity-0 transition duration-300 group-hover:opacity-100" />
-          <span className={`absolute right-[calc(100%+0.7rem)] top-1/2 -translate-y-1/2 rounded-full bg-[#07111F] px-3.5 py-2 text-xs font-semibold whitespace-nowrap text-white shadow-[0_14px_34px_rgba(7,17,31,0.24)] transition duration-300 ${showHint ? "translate-x-0 opacity-100" : "translate-x-3 opacity-0"} group-hover:translate-x-0 group-hover:opacity-100`}>
+          <motion.span
+            className="pointer-events-none absolute right-[calc(100%+0.7rem)] top-1/2 -translate-y-1/2 rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(7,17,31,0.95),rgba(13,24,37,0.88))] px-4 py-2.5 text-xs font-semibold text-white shadow-[0_18px_40px_rgba(7,17,31,0.26)] backdrop-blur-sm"
+            initial={{ opacity: 0, x: 12, scale: 0.9 }}
+            animate={{
+              opacity: showHint ? 1 : 0,
+              x: showHint ? 0 : 12,
+              scale: showHint ? 1 : 0.9
+            }}
+            transition={{ type: "spring", stiffness: 280, damping: 24 }}
+          >
             Chat with us
-          </span>
-          <span className="relative grid h-14 w-14 place-items-center rounded-full transition duration-300 group-hover:scale-105">
+            <motion.span
+              className="pointer-events-none absolute inset-0 rounded-xl bg-white/10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.25, 0] }}
+              transition={{ duration: 1.4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+            />
+          </motion.span>
+          <motion.span
+            className="relative grid h-14 w-14 place-items-center rounded-full transition duration-300 group-hover:scale-105"
+            whileHover={{ rotate: [0, -9, 9, 0], transition: { duration: 0.45 } }}
+            whileTap={{ rotate: 0, scale: 0.93 }}
+          >
             <WhatsAppLogo className="h-7 w-7" />
-          </span>
-        </a>
+          </motion.span>
+          <AnimatePresence>
+            {showPopupPulse && (
+              <motion.span
+                className="absolute -inset-8 rounded-full border border-[#8ff8a0]/35"
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{
+                  opacity: [0.35, 0.7, 0],
+                  scale: [0.75, 1.15, 1.45]
+                }}
+                exit={{ opacity: 0, scale: 0.6 }}
+                transition={{ duration: 1.2, repeat: 1, ease: "easeOut" }}
+              />
+            )}
+          </AnimatePresence>
+        </motion.a>
 
         <AnimatePresence>
           {showTop && (

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ShoppingCart, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -28,14 +29,27 @@ export function CartContents() {
 
   return (
     <Container className="py-8">
-      <h1 className="text-3xl font-semibold tracking-normal">Cart</h1>
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_420px]">
+      <motion.h1 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.45 }} className="text-3xl font-semibold tracking-normal">Cart</motion.h1>
+      <motion.div
+        className="mt-6 grid gap-6 lg:grid-cols-[1fr_420px]"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.55, ease: "easeOut" }}
+      >
         <Card className="overflow-hidden">
           <div className="grid grid-cols-[1fr_120px_130px_120px_44px] gap-3 border-b border-slate-100 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase text-slate-500 max-md:hidden">
             <span>Product</span><span>Price</span><span>Quantity</span><span>Subtotal</span><span />
           </div>
           {lines.length ? lines.map((line) => (
-            <div key={line.product.id} className="grid gap-4 border-b border-slate-100 p-5 md:grid-cols-[1fr_120px_130px_120px_44px] md:items-center">
+            <motion.div
+              key={line.product.id}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
+              className="grid gap-4 border-b border-slate-100 p-5 md:grid-cols-[1fr_120px_130px_120px_44px] md:items-center"
+            >
               <div className="flex items-center gap-4">
                 <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-slate-50 via-white to-slate-100 shadow-[0_12px_30px_rgba(7,17,31,0.06)] md:h-24 md:w-24 xl:h-28 xl:w-28">
                   <Image src={line.product.image} alt={line.product.name} fill className="object-cover" sizes="112px" />
@@ -53,10 +67,16 @@ export function CartContents() {
                 onIncrease={() => update(line.product.id, line.quantity + 1)}
               />
               <div className="font-semibold">{formatPrice(line.product.price * line.quantity)}</div>
-              <button onClick={() => remove(line.product.id)} aria-label="Remove item" className="grid h-10 w-10 place-items-center rounded-md text-slate-400 hover:bg-red-50 hover:text-red-600">
+              <motion.button
+                whileHover={{ scale: 1.07 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => remove(line.product.id)}
+                aria-label="Remove item"
+                className="grid h-10 w-10 place-items-center rounded-md text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+              >
                 <Trash2 size={17} />
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           )) : (
             <div className="grid place-items-center px-6 py-16 text-center">
               <ShoppingCart className="text-slate-300" size={42} />
@@ -66,8 +86,9 @@ export function CartContents() {
             </div>
           )}
         </Card>
-        <div className="grid gap-4">
-          <Card className="p-5">
+        <motion.div className="grid gap-4">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.1 }} transition={{ duration: 0.45, delay: 0.05 }}>
+            <Card className="p-5">
             <h2 className="text-xl font-semibold">Coupon Code</h2>
             <form
               className="mt-4 flex gap-2"
@@ -85,8 +106,10 @@ export function CartContents() {
               <Button type="submit">Apply</Button>
             </form>
             {couponApplied ? <div className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">Coupon {coupon.toUpperCase()} applied.</div> : null}
-          </Card>
-          <Card className="p-5">
+            </Card>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.1 }} transition={{ duration: 0.45, delay: 0.1 }}>
+            <Card className="p-5">
             <h2 className="text-xl font-semibold">Order Summary</h2>
             <SummaryRow label="Subtotal" value={formatPrice(subtotal)} />
             <SummaryRow label="Delivery Charge" value={delivery === 0 ? "Free" : formatPrice(delivery)} />
@@ -100,13 +123,14 @@ export function CartContents() {
             <Button asChild variant="ghost" className="mt-2 w-full">
               <Link href="/shop">Continue Shopping</Link>
             </Button>
-          </Card>
-        </div>
-      </div>
-      <section className="mt-12">
+            </Card>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+      <motion.section initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.12 }} transition={{ duration: 0.55 }} className="mt-12">
         <h2 className="mb-5 text-2xl font-semibold">Recommended for Your Cart</h2>
         <ProductGrid products={products.slice(4, 8)} />
-      </section>
+      </motion.section>
     </Container>
   );
 }

@@ -139,6 +139,16 @@ export function Header() {
     return () => window.clearTimeout(timer);
   }, [cartOpen, closeCartDrawer]);
 
+  useEffect(() => {
+    if (!cartOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [cartOpen]);
+
   return (
     <header className="fixed inset-x-0 top-0 z-60">
       <div className={`hidden overflow-hidden border-b border-slate-200 bg-white text-[#07111F] transition-[max-height,opacity] duration-300 ease-out lg:block ${showAnnouncement ? "max-h-7 opacity-100" : "max-h-0 opacity-0"}`}>
@@ -330,7 +340,7 @@ export function Header() {
       <AnimatePresence>
         {cartOpen && (
           <motion.div
-            className="fixed inset-0 z-[70] bg-[#07111F]/35 backdrop-blur-sm"
+            className="fixed inset-0 z-[70] bg-[#07111F]/42 backdrop-blur-[1px]"
             onClick={closeCartDrawer}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -338,36 +348,73 @@ export function Header() {
             transition={{ duration: 0.24, ease: "easeOut" }}
           >
             <motion.aside
-              className="ml-auto h-full w-full max-w-md border-l border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-5 shadow-[0_28px_90px_rgba(7,17,31,0.28)]"
+              className="ml-auto flex h-full w-full max-w-[440px] flex-col border-l border-slate-200/80 bg-gradient-to-b from-white via-white to-slate-100/95 p-0 shadow-[0_32px_100px_rgba(7,17,31,0.28)] backdrop-blur-sm overflow-hidden rounded-none"
               onClick={(event) => event.stopPropagation()}
-              initial={{ x: 40, opacity: 0.8 }}
+              initial={{ x: 260, opacity: 0.9 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 32, opacity: 0.7 }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              exit={{ x: 180, opacity: 0.8 }}
+              transition={{ type: "spring", stiffness: 320, damping: 36, mass: 0.8 }}
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-semibold text-[#07111F]">Your Cart</h2>
-                  <p className="mt-1 text-sm text-slate-500">{count} item{count === 1 ? "" : "s"} ready for checkout</p>
-                </div>
-                <button onClick={closeCartDrawer} className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white hover:border-[#D4A853] hover:bg-[#fff8ea]"><X size={18} /></button>
-              </div>
-              <div className="mt-5 rounded-2xl bg-[#07111F] p-4 text-white shadow-[0_22px_60px_rgba(7,17,31,0.2)]">
-                <div className="flex items-center justify-between gap-3">
+              <motion.div
+                className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/95 px-5 py-5 backdrop-blur-xl"
+                initial={{ y: -12, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.32, ease: "easeOut" }}
+              >
+                <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#F3D28A]">Estimated Total</div>
-                    <div className="mt-2 text-2xl font-black tracking-[-0.04em]">{formatPrice(subtotal)}</div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Shopping Cart</p>
+                    <h2 className="mt-1 text-2xl font-black tracking-[-0.01em] text-[#07111F]">Your Cart</h2>
+                    <p className="mt-1 text-sm text-slate-500">{count} item{count === 1 ? "" : "s"} ready for checkout</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-2 text-right">
-                    <div className="text-[11px] uppercase tracking-[0.16em] text-slate-300">Benefits</div>
-                    <div className="mt-1 text-sm font-semibold">EMI Ready</div>
-                  </div>
+                  <motion.button
+                    onClick={closeCartDrawer}
+                    whileHover={{ rotate: 90, scale: 1.03 }}
+                    whileTap={{ scale: 0.96 }}
+                    transition={{ type: "spring", stiffness: 320, damping: 22 }}
+                    className="mt-1 grid h-10 w-10 place-items-center border border-slate-200 bg-white text-slate-500 shadow-[0_10px_24px_rgba(7,17,31,0.06)] transition hover:border-[#D4A853] hover:text-[#B9832B]"
+                  >
+                    <X size={18} />
+                  </motion.button>
                 </div>
-              </div>
-              <div className="mt-5 grid gap-3">
-                {lines.length ? lines.slice(0, 5).map((line) => (
-                  <div key={line.product.id} className="flex gap-4 rounded-2xl border border-slate-100 bg-white p-3.5 shadow-[0_10px_28px_rgba(7,17,31,0.04)]">
-                    <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-slate-100 bg-gradient-to-br from-slate-50 via-white to-slate-100">
+                <motion.div
+                  className="rounded-lg border border-slate-200 bg-[#07111F] px-4 py-3 text-white shadow-[0_18px_46px_rgba(7,17,31,0.2)]"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.32, ease: "easeOut" }}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#F3D28A]">Estimated Total</div>
+                      <div className="mt-2 text-3xl font-black tracking-[-0.04em]">{formatPrice(subtotal)}</div>
+                    </div>
+                    <div className="rounded-lg border border-white/10 bg-white/8 px-3 py-2 text-right">
+                      <div className="text-[11px] uppercase tracking-[0.16em] text-slate-300">Benefits</div>
+                      <div className="mt-1 text-sm font-semibold">EMI Ready</div>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+              <div className="mt-5 min-h-0 flex-1 overflow-y-auto px-5 py-2 pr-2 space-y-5">
+                <motion.div
+                  className="rounded-sm border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.32, ease: "easeOut" }}
+                >
+                  Tip: keep the cart in one place and apply checkout modifiers here before payment.
+                </motion.div>
+                <div className="grid gap-3">
+                {lines.length ? lines.map((line) => (
+                  <motion.div
+                    key={line.product.id}
+                    initial={{ opacity: 0, x: 18 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    whileHover={{ y: -2, boxShadow: "0 14px 34px rgba(7,17,31,0.12)" }}
+                    className="flex gap-4 rounded-sm border border-slate-200 bg-white p-3.5 transition-shadow"
+                  >
+                    <div className="relative h-20 w-20 overflow-hidden rounded-sm border border-slate-100 bg-gradient-to-br from-slate-50 via-white to-slate-100">
                       <Image src={line.product.image} alt={line.product.name} fill className="object-contain p-2" sizes="80px" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -384,21 +431,43 @@ export function Header() {
                         <span>{formatPrice(line.product.price)}</span>
                       </div>
                     </div>
-                    <button onClick={() => removeFromCart(line.product.id)} className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600" aria-label="Remove from cart"><X size={15} /></button>
-                  </div>
+                    <motion.button
+                      onClick={() => removeFromCart(line.product.id)}
+                      whileHover={{ scale: 1.06 }}
+                      whileTap={{ scale: 0.96 }}
+                      className="grid h-8 w-8 place-items-center rounded-sm border border-transparent text-slate-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                      aria-label="Remove from cart"
+                    >
+                      <X size={15} />
+                    </motion.button>
+                  </motion.div>
                 )) : (
-                  <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center">
+                  <div className="rounded-sm border border-dashed border-slate-200 bg-white p-8 text-center">
                     <ShoppingCart className="mx-auto text-slate-400" />
                     <div className="mt-3 font-semibold">Your cart is empty</div>
                     <p className="mt-1 text-sm text-slate-500">Add a premium appliance and it will appear here instantly.</p>
                   </div>
                 )}
               </div>
-              <div className="mt-5 rounded-2xl bg-slate-50 p-4">
+              <div className="rounded-sm border border-slate-200 bg-slate-50 p-4">
                 <div className="flex items-center gap-2 text-sm font-semibold"><WalletCards className="text-[#D4A853]" size={17} /> EMI, coupon, and checkout flow ready</div>
               </div>
-              <Button asChild variant="gold" className="mt-5 w-full !text-[#07111F]"><Link href="/cart">View Cart</Link></Button>
-              <Button asChild variant="default" className="mt-2 w-full !text-white hover:!text-[#F8DEAA]"><Link href="/checkout">Checkout</Link></Button>
+              <motion.div
+                className="sticky bottom-0 z-10 bg-white/95 px-5 py-4"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <div className="grid gap-2">
+                  <motion.div whileHover={{ y: -1 }} whileTap={{ y: 0 }}>
+                    <Button asChild variant="gold" className="w-full !text-[#07111F]"><Link href="/cart">View Cart</Link></Button>
+                  </motion.div>
+                  <motion.div whileHover={{ y: -1 }} whileTap={{ y: 0 }}>
+                    <Button asChild variant="default" className="w-full !text-white hover:!text-[#F8DEAA]"><Link href="/checkout">Checkout</Link></Button>
+                  </motion.div>
+                </div>
+              </motion.div>
+              </div>
             </motion.aside>
           </motion.div>
         )}
